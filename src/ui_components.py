@@ -1,14 +1,13 @@
 import tkinter as tk
-from tkinter import ttk
 from typing import Callable
 
-from .theme import APP_THEME, FONT_BODY
+from .theme import APP_THEME, FONT_BODY, FONT_BODY_BOLD, FONT_SMALL
 
 
 class FieldRow:
     def __init__(
         self,
-        parent: ttk.Frame,
+        parent: tk.Frame,
         *,
         name: str,
         label: str,
@@ -16,14 +15,23 @@ class FieldRow:
         readonly: bool = False,
         output_only: bool = False,
         badge_text: str = "Calculated",
+        background: str = APP_THEME.surface,
+        label_color: str = APP_THEME.text,
     ) -> None:
         self.name = name
         self.variable = variable
         self.output_only = output_only
         self.badge_text = badge_text
+        self.background = background
 
-        self.container = ttk.Frame(parent)
-        self.label = ttk.Label(self.container, text=label)
+        self.container = tk.Frame(parent, bg=background)
+        self.label = tk.Label(
+            self.container,
+            text=label,
+            bg=background,
+            fg=label_color,
+            font=FONT_BODY_BOLD,
+        )
         self.input_frame = tk.Frame(
             self.container,
             bg=APP_THEME.surface,
@@ -31,15 +39,24 @@ class FieldRow:
             highlightbackground=APP_THEME.border,
             highlightcolor=APP_THEME.primary,
         )
-        self.entry = ttk.Entry(
+        self.entry = tk.Entry(
             self.input_frame,
             textvariable=variable,
             font=FONT_BODY,
+            bd=0,
+            relief="flat",
+            bg=APP_THEME.surface,
+            fg=APP_THEME.text,
+            insertbackground=APP_THEME.text,
         )
-        self.badge = ttk.Label(
+        self.badge = tk.Label(
             self.input_frame,
             text=self.badge_text,
-            style="Badge.TLabel",
+            bg=APP_THEME.primary_soft,
+            fg=APP_THEME.muted,
+            font=FONT_SMALL,
+            padx=8,
+            pady=2,
         )
 
         self.label.grid(row=0, column=0, sticky="w")
@@ -49,7 +66,7 @@ class FieldRow:
         self.entry.pack(side="left", fill="both", expand=True, padx=12, pady=8)
 
         if readonly:
-            self.entry.configure(state="readonly")
+            self.entry.configure(state="readonly", readonlybackground=APP_THEME.surface)
 
         self._is_output = False
 
@@ -72,7 +89,10 @@ class FieldRow:
         self._is_output = is_output
         bg = APP_THEME.primary_soft if is_output else APP_THEME.surface
         self.input_frame.configure(bg=bg)
-        self.entry.configure(background=bg)
+        if self.entry.cget("state") == "readonly":
+            self.entry.configure(readonlybackground=bg)
+        else:
+            self.entry.configure(bg=bg)
         if is_output:
             if not self.badge.winfo_ismapped():
                 self.badge.pack(side="right", padx=(0, 8), pady=0)
@@ -81,7 +101,7 @@ class FieldRow:
                 self.badge.pack_forget()
 
     def set_foreground(self, color: str) -> None:
-        self.entry.configure(foreground=color)
+        self.entry.configure(fg=color, insertbackground=color)
 
     def bind_on_change(self, callback: Callable[[], None]) -> None:
         def handler(_event=None) -> None:

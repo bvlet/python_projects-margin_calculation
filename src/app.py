@@ -2,7 +2,18 @@ import tkinter as tk
 from tkinter import ttk
 
 from .calculations import calculate_all, reset_values
-from .theme import APP_THEME, FONT_BODY, FONT_HEADING, FONT_SUBHEADING
+from .theme import (
+    APP_THEME,
+    FONT_BODY,
+    FONT_HEADING,
+    FONT_SECTION,
+    FONT_SMALL,
+    FONT_SUBHEADING,
+    SPACING_LG,
+    SPACING_MD,
+    SPACING_SM,
+    SPACING_XS,
+)
 from .ui_components import FieldRow
 
 
@@ -25,8 +36,8 @@ class MarginCalculatorApp:
     def __init__(self, root: tk.Tk) -> None:
         self.root = root
         self.root.title("Margin Calculator")
-        self.root.geometry("860x720")
-        self.root.minsize(720, 640)
+        self.root.geometry("900x760")
+        self.root.minsize(760, 680)
         self.root.configure(bg=APP_THEME.background)
 
         self.style = ttk.Style()
@@ -35,91 +46,86 @@ class MarginCalculatorApp:
         self.values, self.sources = reset_values()
         self.variables = {name: tk.StringVar(value=value) for name, value in self.values.items()}
 
-        self.header = ttk.Frame(self.root, padding=(24, 20))
-        self.header.pack(fill="x")
+        self.page = tk.Frame(self.root, bg=APP_THEME.background)
+        self.page.pack(fill="both", expand=True)
 
-        title = ttk.Label(self.header, text="Margin Calculator", font=FONT_HEADING)
-        subtitle = ttk.Label(
-            self.header,
-            text="Calculate cost, pricing, discounts, and margins with clarity.",
+        self.header = tk.Frame(self.page, bg=APP_THEME.surface)
+        self.header.pack(fill="x", padx=SPACING_LG, pady=(SPACING_LG, SPACING_MD))
+
+        header_left = tk.Frame(self.header, bg=APP_THEME.surface)
+        header_left.pack(side="left", anchor="w")
+
+        title = tk.Label(header_left, text="Margin Calculator", font=FONT_HEADING, bg=APP_THEME.surface)
+        subtitle = tk.Label(
+            header_left,
+            text="Modern pricing and margin analysis toolkit",
             font=FONT_SUBHEADING,
-            foreground=APP_THEME.muted,
+            fg=APP_THEME.muted,
+            bg=APP_THEME.surface,
         )
         title.pack(anchor="w")
-        subtitle.pack(anchor="w", pady=(4, 0))
+        subtitle.pack(anchor="w", pady=(SPACING_XS, 0))
 
         self._render_logo()
 
-        self.content = ttk.Frame(self.root, padding=(24, 8))
-        self.content.pack(fill="both", expand=True)
+        self.card = tk.Frame(
+            self.page,
+            bg=APP_THEME.surface,
+            highlightbackground=APP_THEME.border,
+            highlightthickness=1,
+        )
+        self.card.pack(fill="both", expand=True, padx=SPACING_LG, pady=(0, SPACING_LG))
 
-        self.card = ttk.Frame(self.content, style="Card.TFrame", padding=(24, 20))
-        self.card.pack(fill="both", expand=True)
+        self.card_inner = tk.Frame(self.card, bg=APP_THEME.surface)
+        self.card_inner.pack(fill="both", expand=True, padx=SPACING_LG, pady=SPACING_LG)
 
-        self.form_frame = ttk.Frame(self.card)
-        self.form_frame.pack(fill="both", expand=True)
-        self.form_frame.grid_columnconfigure(1, weight=1)
-
-        description = ttk.Label(
-            self.form_frame,
+        description = tk.Label(
+            self.card_inner,
             text=(
                 "Target Margin is calculated on Net2. Added Value is part of Net2 BEFORE discount.\n"
                 "Inputs remain white. Calculated fields appear blue with a badge."
             ),
-            foreground=APP_THEME.muted,
-            font=FONT_BODY,
+            fg=APP_THEME.muted,
+            bg=APP_THEME.surface,
+            font=FONT_SMALL,
+            justify="left",
         )
-        description.grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 16))
+        description.grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, SPACING_MD))
 
         self.fields = {}
         row = 1
-        for name, label in FIELD_DEFINITIONS:
-            field = FieldRow(
-                self.form_frame,
-                name=name,
-                label=label,
-                variable=self.variables[name],
-            )
-            field.grid(row=row, column=0, columnspan=2, sticky="ew", pady=6)
-            field.bind_on_change(lambda n=name: self._mark_user(n))
-            self.fields[name] = field
-            row += 1
+        row = self._render_section(
+            row,
+            title="Inputs",
+            definitions=FIELD_DEFINITIONS,
+        )
 
-        separator = ttk.Separator(self.form_frame)
-        separator.grid(row=row, column=0, columnspan=2, sticky="ew", pady=(12, 12))
-        row += 1
-
-        for name, label in OUTPUT_DEFINITIONS:
-            field = FieldRow(
-                self.form_frame,
-                name=name,
-                label=label,
-                variable=self.variables[name],
-                readonly=True,
-                output_only=True,
-            )
-            field.grid(row=row, column=0, columnspan=2, sticky="ew", pady=6)
-            field.set_mode("output")
-            self.fields[name] = field
-            row += 1
+        row = self._render_section(
+            row,
+            title="Outputs",
+            definitions=OUTPUT_DEFINITIONS,
+            output_only=True,
+        )
 
         self.status_field = FieldRow(
-            self.form_frame,
+            self.card_inner,
             name="status",
-            label="Status:",
+            label="Status",
             variable=self.variables["status"],
             readonly=True,
             output_only=True,
+            background=APP_THEME.surface,
+            label_color=APP_THEME.muted,
         )
-        self.status_field.grid(row=row, column=0, columnspan=2, sticky="ew", pady=(12, 6))
+        self.status_field.grid(row=row, column=0, columnspan=2, sticky="ew", pady=(SPACING_MD, 0))
         self.status_field.set_mode("output")
         self.fields["status"] = self.status_field
         row += 1
 
         self._set_status_style("")
 
-        self.actions = ttk.Frame(self.card)
-        self.actions.pack(fill="x", pady=(16, 0))
+        self.actions = tk.Frame(self.card_inner, bg=APP_THEME.surface)
+        self.actions.grid(row=row, column=0, columnspan=2, sticky="w", pady=(SPACING_LG, 0))
 
         self.calculate_button = ttk.Button(
             self.actions,
@@ -135,21 +141,20 @@ class MarginCalculatorApp:
         )
 
         self.calculate_button.pack(side="left")
-        self.reset_button.pack(side="left", padx=(12, 0))
+        self.reset_button.pack(side="left", padx=(SPACING_SM, 0))
 
         self.root.bind("<Return>", lambda _event: self.on_calculate())
 
     def _configure_style(self) -> None:
         self.style.theme_use("clam")
-        self.style.configure("TLabel", background=APP_THEME.background, font=FONT_BODY, foreground=APP_THEME.text)
-        self.style.configure("Card.TFrame", background=APP_THEME.surface, relief="flat")
         self.style.configure(
             "Primary.TButton",
             font=FONT_BODY,
             background=APP_THEME.primary,
             foreground="#FFFFFF",
-            padding=(18, 10),
+            padding=(20, 10),
             borderwidth=0,
+            relief="flat",
         )
         self.style.map(
             "Primary.TButton",
@@ -160,20 +165,13 @@ class MarginCalculatorApp:
             font=FONT_BODY,
             background=APP_THEME.surface,
             foreground=APP_THEME.primary,
-            padding=(18, 10),
+            padding=(20, 10),
             borderwidth=1,
             relief="solid",
         )
         self.style.map(
             "Ghost.TButton",
             background=[("active", APP_THEME.primary_soft), ("pressed", APP_THEME.primary_soft)],
-        )
-        self.style.configure(
-            "Badge.TLabel",
-            background=APP_THEME.primary_soft,
-            foreground=APP_THEME.muted,
-            font=("Segoe UI", 9, "bold"),
-            padding=(8, 2),
         )
 
     def _render_logo(self) -> None:
@@ -182,9 +180,53 @@ class MarginCalculatorApp:
         except tk.TclError:
             return
 
-        logo_label = ttk.Label(self.header, image=logo, background=APP_THEME.background)
+        logo_wrap = tk.Frame(self.header, bg=APP_THEME.surface)
+        logo_wrap.pack(side="right", anchor="e")
+        badge = tk.Frame(
+            logo_wrap,
+            bg=APP_THEME.surface_alt,
+            highlightbackground=APP_THEME.border,
+            highlightthickness=1,
+        )
+        badge.pack()
+        logo_label = tk.Label(badge, image=logo, bg=APP_THEME.surface_alt)
         logo_label.image = logo
-        logo_label.pack(anchor="e", side="right")
+        logo_label.pack(padx=SPACING_SM, pady=SPACING_XS)
+
+    def _render_section(self, row: int, title: str, definitions, output_only: bool = False) -> int:
+        section_label = tk.Label(
+            self.card_inner,
+            text=title,
+            font=FONT_SECTION,
+            bg=APP_THEME.surface,
+            fg=APP_THEME.text,
+        )
+        section_label.grid(row=row, column=0, columnspan=2, sticky="w", pady=(SPACING_SM, SPACING_SM))
+        row += 1
+
+        for name, label in definitions:
+            field = FieldRow(
+                self.card_inner,
+                name=name,
+                label=label,
+                variable=self.variables[name],
+                readonly=output_only,
+                output_only=output_only,
+                background=APP_THEME.surface,
+            )
+            field.grid(row=row, column=0, columnspan=2, sticky="ew", pady=SPACING_XS)
+            if output_only:
+                field.set_mode("output")
+            else:
+                field.bind_on_change(lambda n=name: self._mark_user(n))
+            self.fields[name] = field
+            row += 1
+
+        divider = tk.Frame(self.card_inner, bg=APP_THEME.surface, height=1)
+        divider.grid(row=row, column=0, columnspan=2, sticky="ew", pady=(SPACING_MD, SPACING_MD))
+        divider.configure(highlightbackground=APP_THEME.border, highlightthickness=1)
+        row += 1
+        return row
 
     def _mark_user(self, name: str) -> None:
         value = self.variables[name].get().strip()
