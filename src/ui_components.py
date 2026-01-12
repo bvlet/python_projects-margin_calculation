@@ -17,6 +17,7 @@ class FieldRow:
         badge_text: str = "Calculated",
         background: str = APP_THEME.surface,
         label_color: str = APP_THEME.text,
+        label_width: int = 26,
     ) -> None:
         self.name = name
         self.variable = variable
@@ -31,6 +32,8 @@ class FieldRow:
             bg=background,
             fg=label_color,
             font=FONT_BODY_BOLD,
+            width=label_width,
+            anchor="w",
         )
         self.input_frame = tk.Frame(
             self.container,

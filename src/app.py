@@ -36,8 +36,8 @@ class MarginCalculatorApp:
     def __init__(self, root: tk.Tk) -> None:
         self.root = root
         self.root.title("Margin Calculator")
-        self.root.geometry("900x760")
-        self.root.minsize(760, 680)
+        self.root.geometry("960x780")
+        self.root.minsize(820, 700)
         self.root.configure(bg=APP_THEME.background)
 
         self.style = ttk.Style()
@@ -49,19 +49,19 @@ class MarginCalculatorApp:
         self.page = tk.Frame(self.root, bg=APP_THEME.background)
         self.page.pack(fill="both", expand=True)
 
-        self.header = tk.Frame(self.page, bg=APP_THEME.surface)
+        self.header = tk.Frame(self.page, bg=APP_THEME.background)
         self.header.pack(fill="x", padx=SPACING_LG, pady=(SPACING_LG, SPACING_MD))
 
-        header_left = tk.Frame(self.header, bg=APP_THEME.surface)
+        header_left = tk.Frame(self.header, bg=APP_THEME.background)
         header_left.pack(side="left", anchor="w")
 
-        title = tk.Label(header_left, text="Margin Calculator", font=FONT_HEADING, bg=APP_THEME.surface)
+        title = tk.Label(header_left, text="Margin Calculator", font=FONT_HEADING, bg=APP_THEME.background)
         subtitle = tk.Label(
             header_left,
             text="Modern pricing and margin analysis toolkit",
             font=FONT_SUBHEADING,
             fg=APP_THEME.muted,
-            bg=APP_THEME.surface,
+            bg=APP_THEME.background,
         )
         title.pack(anchor="w")
         subtitle.pack(anchor="w", pady=(SPACING_XS, 0))
@@ -78,6 +78,7 @@ class MarginCalculatorApp:
 
         self.card_inner = tk.Frame(self.card, bg=APP_THEME.surface)
         self.card_inner.pack(fill="both", expand=True, padx=SPACING_LG, pady=SPACING_LG)
+        self.card_inner.grid_columnconfigure(1, weight=1)
 
         description = tk.Label(
             self.card_inner,
@@ -89,6 +90,7 @@ class MarginCalculatorApp:
             bg=APP_THEME.surface,
             font=FONT_SMALL,
             justify="left",
+            wraplength=640,
         )
         description.grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, SPACING_MD))
 
@@ -116,6 +118,7 @@ class MarginCalculatorApp:
             output_only=True,
             background=APP_THEME.surface,
             label_color=APP_THEME.muted,
+            label_width=18,
         )
         self.status_field.grid(row=row, column=0, columnspan=2, sticky="ew", pady=(SPACING_MD, 0))
         self.status_field.set_mode("output")
@@ -180,7 +183,7 @@ class MarginCalculatorApp:
         except tk.TclError:
             return
 
-        logo_wrap = tk.Frame(self.header, bg=APP_THEME.surface)
+        logo_wrap = tk.Frame(self.header, bg=APP_THEME.background)
         logo_wrap.pack(side="right", anchor="e")
         badge = tk.Frame(
             logo_wrap,
@@ -213,6 +216,7 @@ class MarginCalculatorApp:
                 readonly=output_only,
                 output_only=output_only,
                 background=APP_THEME.surface,
+                label_width=28,
             )
             field.grid(row=row, column=0, columnspan=2, sticky="ew", pady=SPACING_XS)
             if output_only:
@@ -222,9 +226,8 @@ class MarginCalculatorApp:
             self.fields[name] = field
             row += 1
 
-        divider = tk.Frame(self.card_inner, bg=APP_THEME.surface, height=1)
+        divider = tk.Frame(self.card_inner, bg=APP_THEME.border, height=1)
         divider.grid(row=row, column=0, columnspan=2, sticky="ew", pady=(SPACING_MD, SPACING_MD))
-        divider.configure(highlightbackground=APP_THEME.border, highlightthickness=1)
         row += 1
         return row
 
