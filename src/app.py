@@ -220,7 +220,7 @@ class MarginCalculatorApp:
             if output_only:
                 field.set_mode("output")
             else:
-                field.bind_on_change(lambda n=name: self._on_field_change(n))
+                field.bind_on_change(lambda n=name: self._mark_user(n))
             self.fields[name] = field
             row += 1
 
@@ -232,10 +232,6 @@ class MarginCalculatorApp:
     def _mark_user(self, name: str) -> None:
         value = self.variables[name].get().strip()
         self.sources[name] = "user" if value else ""
-
-    def _on_field_change(self, name: str) -> None:
-        self._mark_user(name)
-        self.on_calculate()
 
     def _set_status_style(self, status: str) -> None:
         color = APP_THEME.danger if status else APP_THEME.muted
