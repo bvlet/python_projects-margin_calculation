@@ -178,7 +178,7 @@ class MarginCalculatorApp:
 
     def _render_logo(self) -> None:
         try:
-            logo = tk.PhotoImage(file="festo_logo.png")
+            logo = tk.PhotoImage(file="png-transparent-festo-hd-logo.png")
         except tk.TclError:
             return
 
