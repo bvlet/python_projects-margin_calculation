@@ -45,19 +45,19 @@ class MarginCalculatorApp:
         self.page = tk.Frame(self.root, bg=APP_THEME.background)
         self.page.pack(fill="both", expand=True)
 
-        self.header = tk.Frame(self.page, bg=APP_THEME.surface)
+        self.header = tk.Frame(self.page, bg=APP_THEME.background)
         self.header.pack(fill="x", padx=SPACING_LG, pady=(SPACING_LG, SPACING_MD))
 
-        header_left = tk.Frame(self.header, bg=APP_THEME.surface)
+        header_left = tk.Frame(self.header, bg=APP_THEME.background)
         header_left.pack(side="left", anchor="w")
 
-        title = tk.Label(header_left, text="Margin Calculator", font=FONT_HEADING, bg=APP_THEME.surface)
+        title = tk.Label(header_left, text="Margin Calculator", font=FONT_HEADING, bg=APP_THEME.background)
         subtitle = tk.Label(
             header_left,
             text="Modern pricing and margin analysis toolkit",
             font=FONT_SUBHEADING,
             fg=APP_THEME.muted,
-            bg=APP_THEME.surface,
+            bg=APP_THEME.background,
         )
         title.pack(anchor="w")
         subtitle.pack(anchor="w", pady=(SPACING_XS, 0))
@@ -182,16 +182,15 @@ class MarginCalculatorApp:
         except tk.TclError:
             return
 
-        logo_wrap = tk.Frame(self.header, bg=APP_THEME.surface)
+        logo_wrap = tk.Frame(self.header, bg=APP_THEME.background)
         logo_wrap.pack(side="right", anchor="e")
         badge = tk.Frame(
             logo_wrap,
-            bg=APP_THEME.surface_alt,
-            highlightbackground=APP_THEME.border,
-            highlightthickness=1,
+            bg=APP_THEME.background,
+            highlightthickness=0,
         )
         badge.pack()
-        logo_label = tk.Label(badge, image=logo, bg=APP_THEME.surface_alt)
+        logo_label = tk.Label(badge, image=logo, bg=APP_THEME.background)
         logo_label.image = logo
         logo_label.pack(padx=SPACING_SM, pady=SPACING_XS)
 
