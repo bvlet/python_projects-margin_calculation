@@ -74,10 +74,13 @@ class MarginCalculatorApp:
 
         self.card_inner = tk.Frame(self.card, bg=APP_THEME.surface)
         self.card_inner.pack(fill="both", expand=True, padx=SPACING_LG, pady=SPACING_LG)
-        self.card_inner.grid_columnconfigure(1, weight=1)
+
+        self.form_frame = tk.Frame(self.card_inner, bg=APP_THEME.surface)
+        self.form_frame.pack(fill="both", expand=True)
+        self.form_frame.grid_columnconfigure(1, weight=1)
 
         description = tk.Label(
-            self.card_inner,
+            self.form_frame,
             text=(
                 "Target Margin is calculated on Net2. Added Value is part of Net2 BEFORE discount.\n"
                 "Inputs remain white. Calculated fields appear blue with a badge."
@@ -106,7 +109,7 @@ class MarginCalculatorApp:
         )
 
         self.status_field = FieldRow(
-            self.card_inner,
+            self.form_frame,
             name="status",
             label="Status",
             variable=self.variables["status"],
@@ -119,12 +122,14 @@ class MarginCalculatorApp:
         self.status_field.grid(row=row, column=0, columnspan=2, sticky="ew", pady=(SPACING_MD, 0))
         self.status_field.set_mode("output")
         self.fields["status"] = self.status_field
-        row += 1
 
         self._set_status_style("")
 
-        self.actions = tk.Frame(self.card_inner, bg=APP_THEME.surface)
-        self.actions.grid(row=row, column=0, columnspan=2, sticky="w", pady=(SPACING_LG, 0))
+        self.footer_frame = tk.Frame(self.card_inner, bg=APP_THEME.surface)
+        self.footer_frame.pack(fill="x", pady=(SPACING_LG, 0))
+
+        self.actions = tk.Frame(self.footer_frame, bg=APP_THEME.surface)
+        self.actions.pack(side="left", anchor="w")
 
         self.calculate_button = tk.Button(
             self.actions,
@@ -161,13 +166,13 @@ class MarginCalculatorApp:
         self.reset_button.pack(side="left", padx=(SPACING_SM, 0))
 
         self.footer = tk.Label(
-            self.card_inner,
+            self.footer_frame,
             text="© Bart van Let 2026",
             font=FONT_SMALL,
             fg=APP_THEME.muted,
             bg=APP_THEME.surface,
         )
-        self.footer.grid(row=row + 1, column=0, columnspan=2, sticky="w", pady=(SPACING_SM, 0))
+        self.footer.pack(side="right", anchor="e", padx=(SPACING_MD, 0))
 
         self.root.bind("<Return>", lambda _event: self.on_calculate())
 
@@ -192,7 +197,7 @@ class MarginCalculatorApp:
 
     def _render_section(self, row: int, title: str, definitions, output_only: bool = False) -> int:
         section_label = tk.Label(
-            self.card_inner,
+            self.form_frame,
             text=title,
             font=FONT_SECTION,
             bg=APP_THEME.surface,
@@ -203,7 +208,7 @@ class MarginCalculatorApp:
 
         for name, label in definitions:
             field = FieldRow(
-                self.card_inner,
+                self.form_frame,
                 name=name,
                 label=label,
                 variable=self.variables[name],
@@ -220,7 +225,7 @@ class MarginCalculatorApp:
             self.fields[name] = field
             row += 1
 
-        divider = tk.Frame(self.card_inner, bg=APP_THEME.border, height=1)
+        divider = tk.Frame(self.form_frame, bg=APP_THEME.border, height=1)
         divider.grid(row=row, column=0, columnspan=2, sticky="ew", pady=(SPACING_MD, SPACING_MD))
         row += 1
         return row
