@@ -35,8 +35,8 @@ class MarginCalculatorApp:
     def __init__(self, root: tk.Tk) -> None:
         self.root = root
         self.root.title("Margin Calculator")
-        self.root.geometry("960x780")
-        self.root.minsize(820, 700)
+        self.root.geometry("980x900")
+        self.root.minsize(940, 860)
         self.root.configure(bg=APP_THEME.background)
 
         self.values, self.sources = reset_values()
