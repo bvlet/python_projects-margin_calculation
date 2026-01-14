@@ -83,9 +83,10 @@ def calculate_all(values: Dict[str, str], sources: Dict[str, str]) -> Calculatio
 
         if added_value is None and discount is None:
             added_value = 0.0
-            discount = 0.0
             av_assumed_zero = True
-            discount_assumed = True
+            if net1 is None or net2 is None:
+                discount = 0.0
+                discount_assumed = True
         elif added_value is None:
             if not (net1 is not None and net2 is not None and discount is not None):
                 added_value = 0.0
