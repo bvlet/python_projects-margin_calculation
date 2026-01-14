@@ -73,6 +73,9 @@ def calculate_all(values: Dict[str, str], sources: Dict[str, str]) -> Calculatio
         if margin is not None and (margin < 0 or margin > 1):
             raise ValueError("Target margin must be between 0% and 100%.")
 
+        if margin is not None and sources.get("net2") != "user":
+            net2 = None
+
         if (
             margin is not None
             and cost is not None
@@ -92,9 +95,10 @@ def calculate_all(values: Dict[str, str], sources: Dict[str, str]) -> Calculatio
                 added_value = 0.0
                 av_assumed_zero = True
         elif discount is None:
-            if not (net1 is not None and net2 is not None and added_value is not None):
-                discount = 0.0
-                discount_assumed = True
+            if margin is None or cost is None:
+                if not (net1 is not None and net2 is not None and added_value is not None):
+                    discount = 0.0
+                    discount_assumed = True
 
         for _ in range(30):
             progress = False
@@ -156,14 +160,15 @@ def calculate_all(values: Dict[str, str], sources: Dict[str, str]) -> Calculatio
                 progress = True
 
             if discount is None and discount_pct is None:
-                if (
-                    (net2 is None and net1 is not None and added_value is not None)
-                    or (net1 is None and net2 is not None and added_value is not None)
-                    or (added_value is None and net2 is not None and net1 is not None)
-                ):
-                    discount = 0.0
-                    discount_assumed = True
-                    progress = True
+                if margin is None or cost is None:
+                    if (
+                        (net2 is None and net1 is not None and added_value is not None)
+                        or (net1 is None and net2 is not None and added_value is not None)
+                        or (added_value is None and net2 is not None and net1 is not None)
+                    ):
+                        discount = 0.0
+                        discount_assumed = True
+                        progress = True
 
             if not progress:
                 break
