@@ -167,7 +167,7 @@ class MarginCalculatorApp:
 
         self.footer = tk.Label(
             self.footer_frame,
-            text="© Bart van Let 2026",
+            text="© 2026 Bart van Let",
             font=FONT_SMALL,
             fg=APP_THEME.muted,
             bg=APP_THEME.surface,
@@ -178,7 +178,7 @@ class MarginCalculatorApp:
 
     def _render_logo(self) -> None:
         try:
-            logo = tk.PhotoImage(file="festo_logo.png")
+            logo = tk.PhotoImage(file="png-transparent-festo-hd-logo.png")
         except tk.TclError:
             return
 

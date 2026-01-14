@@ -58,15 +58,15 @@ def calculate_all(values: Dict[str, str], sources: Dict[str, str]) -> Calculatio
         net2 = parse_float(updated_values.get("net2", ""))
         target_margin_pct = parse_float(updated_values.get("target_margin", ""))
 
-        if added_value is not None and added_value < 0:
-            raise ValueError("Added Value cannot be negative.")
-
         discount = None if discount_pct is None else (discount_pct / 100.0)
         margin = None if target_margin_pct is None else (target_margin_pct / 100.0)
 
         discount_assumed = False
         discount_solved = False
         av_assumed_zero = False
+
+        if added_value is not None and added_value < 0:
+            raise ValueError("Added Value cannot be negative.")
 
         if discount is not None and (discount < 0 or discount > 1):
             raise ValueError("Discount must be between 0% and 100%.")
@@ -80,6 +80,20 @@ def calculate_all(values: Dict[str, str], sources: Dict[str, str]) -> Calculatio
             and sources.get("net2") == "user"
         ):
             raise ValueError("Too many inputs. Clear one of the fields to solve.")
+
+        if added_value is None and discount is None:
+            added_value = 0.0
+            discount = 0.0
+            av_assumed_zero = True
+            discount_assumed = True
+        elif added_value is None:
+            if not (net1 is not None and net2 is not None and discount is not None):
+                added_value = 0.0
+                av_assumed_zero = True
+        elif discount is None:
+            if not (net1 is not None and net2 is not None and added_value is not None):
+                discount = 0.0
+                discount_assumed = True
 
         for _ in range(30):
             progress = False
