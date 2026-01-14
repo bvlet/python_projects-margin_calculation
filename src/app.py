@@ -167,7 +167,7 @@ class MarginCalculatorApp:
 
         self.footer = tk.Label(
             self.footer_frame,
-            text="© Bart van Let 2026",
+            text="© 2026 Bart van Let",
             font=FONT_SMALL,
             fg=APP_THEME.muted,
             bg=APP_THEME.surface,
