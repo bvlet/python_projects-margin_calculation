@@ -79,6 +79,7 @@ class MarginCalculatorApp:
         self.form_frame = tk.Frame(self.card_inner, bg=APP_THEME.surface)
         self.form_frame.pack(fill="both", expand=True)
         self.form_frame.grid_columnconfigure(1, weight=1)
+        self.label_width = max(len(label) for _, label in FIELD_DEFINITIONS + OUTPUT_DEFINITIONS) + 2
 
         description = tk.Label(
             self.form_frame,
@@ -118,7 +119,7 @@ class MarginCalculatorApp:
             output_only=True,
             background=APP_THEME.surface,
             label_color=APP_THEME.muted,
-            label_width=18,
+            label_width=self.label_width,
         )
         self.status_field.grid(row=row, column=0, columnspan=2, sticky="ew", pady=(SPACING_MD, 0))
         self.status_field.set_mode("output")
@@ -228,7 +229,7 @@ class MarginCalculatorApp:
                 readonly=output_only,
                 output_only=output_only,
                 background=APP_THEME.surface,
-                label_width=28,
+                label_width=self.label_width,
             )
             field.grid(row=row, column=0, columnspan=2, sticky="ew", pady=SPACING_XS)
             if output_only:
