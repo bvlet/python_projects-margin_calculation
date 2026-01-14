@@ -18,6 +18,7 @@ class FieldRow:
         background: str = APP_THEME.surface,
         label_color: str = APP_THEME.text,
         label_width: int = 26,
+        input_width: int = 170,
     ) -> None:
         self.name = name
         self.variable = variable
@@ -41,7 +42,9 @@ class FieldRow:
             highlightthickness=1,
             highlightbackground=APP_THEME.border,
             highlightcolor=APP_THEME.primary,
+            width=input_width,
         )
+        self.input_frame.grid_propagate(False)
         self.entry = tk.Entry(
             self.input_frame,
             textvariable=variable,
@@ -63,7 +66,7 @@ class FieldRow:
         )
 
         self.label.grid(row=0, column=0, sticky="w")
-        self.input_frame.grid(row=0, column=1, sticky="ew", padx=(16, 0))
+        self.input_frame.grid(row=0, column=1, sticky="w", padx=(16, 0))
         self.container.grid_columnconfigure(1, weight=1)
 
         self.entry.pack(side="left", fill="both", expand=True, padx=12, pady=8)

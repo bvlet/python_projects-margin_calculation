@@ -120,6 +120,7 @@ class MarginCalculatorApp:
             background=APP_THEME.surface,
             label_color=APP_THEME.muted,
             label_width=self.label_width,
+            input_width=420,
         )
         self.status_field.grid(row=row, column=0, columnspan=2, sticky="ew", pady=(SPACING_MD, 0))
         self.status_field.set_mode("output")
@@ -247,6 +248,20 @@ class MarginCalculatorApp:
     def _mark_user(self, name: str) -> None:
         value = self.variables[name].get().strip()
         self.sources[name] = "user" if value else ""
+        if name == "net1":
+            self._sync_net2_from_net1(value)
+
+    def _sync_net2_from_net1(self, net1_value: str) -> None:
+        if self.sources.get("net2") == "user":
+            return
+        if net1_value:
+            self.variables["net2"].set(net1_value)
+            self.sources["net2"] = "calc"
+            self.fields["net2"].set_mode("output")
+        else:
+            self.variables["net2"].set("")
+            self.sources["net2"] = ""
+            self.fields["net2"].set_mode("input")
 
     def _set_status_style(self, status: str) -> None:
         color = APP_THEME.danger if status else APP_THEME.muted
