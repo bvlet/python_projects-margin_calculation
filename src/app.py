@@ -1,3 +1,4 @@
+import math
 import tkinter as tk
 
 from .calculations import calculate_all, reset_values
@@ -177,10 +178,23 @@ class MarginCalculatorApp:
         self.root.bind("<Return>", lambda _event: self.on_calculate())
 
     def _render_logo(self) -> None:
-        try:
-            logo = tk.PhotoImage(file="png-transparent-festo-hd-logo.png")
-        except tk.TclError:
+        logo = None
+        for path in ("festo_logo.png", "png-transparent-festo-hd-logo.png"):
+            try:
+                logo = tk.PhotoImage(file=path)
+                break
+            except tk.TclError:
+                continue
+
+        if logo is None:
             return
+
+        max_width = 220
+        max_height = 56
+        scale = max(logo.width() / max_width, logo.height() / max_height)
+        if scale > 1:
+            factor = math.ceil(scale)
+            logo = logo.subsample(factor, factor)
 
         logo_wrap = tk.Frame(self.header, bg=APP_THEME.background)
         logo_wrap.pack(side="right", anchor="e")
