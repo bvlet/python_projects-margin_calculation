@@ -66,8 +66,8 @@ class FieldRow:
         )
 
         self.label.grid(row=0, column=0, sticky="w")
-        self.input_frame.grid(row=0, column=1, sticky="w", padx=(16, 0))
-        self.container.grid_columnconfigure(1, weight=1)
+        self.input_frame.grid(row=0, column=1, sticky="e", padx=(16, 0))
+        self.container.grid_columnconfigure(0, weight=1)
 
         self.entry.pack(side="left", fill="both", expand=True, padx=12, pady=8)
 

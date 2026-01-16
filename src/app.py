@@ -1,4 +1,5 @@
 import math
+from collections import Counter
 import tkinter as tk
 
 from .calculations import calculate_all, reset_values
@@ -198,6 +199,8 @@ class MarginCalculatorApp:
             factor = math.ceil(scale)
             logo = logo.subsample(factor, factor)
 
+        self._apply_logo_transparency(logo)
+
         logo_wrap = tk.Frame(self.header, bg=APP_THEME.background)
         logo_wrap.pack(side="right", anchor="e")
         badge = tk.Frame(
@@ -209,6 +212,31 @@ class MarginCalculatorApp:
         logo_label = tk.Label(badge, image=logo, bg=APP_THEME.background)
         logo_label.image = logo
         logo_label.pack(padx=SPACING_SM, pady=SPACING_XS)
+
+    def _apply_logo_transparency(self, logo: tk.PhotoImage) -> None:
+        width = logo.width()
+        height = logo.height()
+        if width == 0 or height == 0:
+            return
+
+        border_colors = []
+        for x in range(width):
+            border_colors.append(logo.get(x, 0))
+            border_colors.append(logo.get(x, height - 1))
+        for y in range(height):
+            border_colors.append(logo.get(0, y))
+            border_colors.append(logo.get(width - 1, y))
+
+        if not border_colors:
+            return
+
+        common = Counter(border_colors).most_common(2)
+        transparent_colors = {color for color, _count in common}
+
+        for x in range(width):
+            for y in range(height):
+                if logo.get(x, y) in transparent_colors:
+                    logo.transparency_set(x, y, True)
 
     def _render_section(self, row: int, title: str, definitions, output_only: bool = False) -> int:
         section_label = tk.Label(
