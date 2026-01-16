@@ -70,9 +70,7 @@ def calculate_all(values: Dict[str, str], sources: Dict[str, str]) -> Calculatio
 
         denom = net1 + added_value
         if margin is not None:
-            if (1.0 - margin) == 0:
-                raise ValueError("Target margin cannot be 100% when solving Net2.")
-            net2 = cost / (1.0 - margin)
+            net2 = cost * (1.0 + margin)
             if denom == 0:
                 raise ValueError("Net1 + Added Value cannot be 0 when solving discount.")
             discount = 1.0 - (net2 / denom)
