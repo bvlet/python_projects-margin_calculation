@@ -300,8 +300,6 @@ class MarginCalculatorApp:
             self._sync_net2_from_net1(value)
 
     def _sync_net2_from_net1(self, net1_value: str) -> None:
-        if self.sources.get("net2") == "user":
-            return
         if net1_value:
             self.variables["net2"].set(net1_value)
             self.sources["net2"] = "calc"
