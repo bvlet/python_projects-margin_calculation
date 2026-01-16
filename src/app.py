@@ -275,7 +275,7 @@ class MarginCalculatorApp:
             if output_only:
                 field.set_mode("output")
             else:
-                field.bind_on_change(lambda n=name: self._mark_user(n))
+                field.bind_on_change(lambda is_user_input, n=name: self._mark_user(n, is_user_input))
             self.fields[name] = field
             row += 1
 
@@ -291,7 +291,9 @@ class MarginCalculatorApp:
         self.root.minsize(min_width, min_height)
         self.root.geometry(f"{min_width}x{min_height}")
 
-    def _mark_user(self, name: str) -> None:
+    def _mark_user(self, name: str, is_user_input: bool) -> None:
+        if not is_user_input:
+            return
         value = self.variables[name].get().strip()
         self.sources[name] = "user" if value else ""
         if name == "net1":

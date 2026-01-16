@@ -121,9 +121,10 @@ class FieldRow:
     def set_foreground(self, color: str) -> None:
         self.entry.configure(fg=color, insertbackground=color)
 
-    def bind_on_change(self, callback: Callable[[], None]) -> None:
-        def handler(_event=None) -> None:
-            callback()
+    def bind_on_change(self, callback: Callable[[bool], None]) -> None:
+        def handler(event) -> None:
+            is_user_input = event.type == tk.EventType.KeyRelease
+            callback(is_user_input)
 
         self.entry.bind("<KeyRelease>", handler)
         self.entry.bind("<FocusOut>", handler)
