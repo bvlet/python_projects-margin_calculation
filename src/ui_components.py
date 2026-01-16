@@ -19,12 +19,14 @@ class FieldRow:
         label_color: str = APP_THEME.text,
         label_width: int = 26,
         input_width: int = 170,
+        expand_input: bool = False,
     ) -> None:
         self.name = name
         self.variable = variable
         self.output_only = output_only
         self.badge_text = badge_text
         self.background = background
+        self.expand_input = expand_input
 
         self.container = tk.Frame(parent, bg=background)
         self.label = tk.Label(
@@ -66,8 +68,18 @@ class FieldRow:
         )
 
         self.label.grid(row=0, column=0, sticky="w")
-        self.input_frame.grid(row=0, column=1, sticky="w", padx=(16, 0))
-        self.container.grid_columnconfigure(1, weight=1)
+        self.input_frame.grid(
+            row=0,
+            column=1,
+            sticky="ew" if self.expand_input else "e",
+            padx=(16, 0),
+        )
+        if self.expand_input:
+            self.container.grid_columnconfigure(0, weight=0)
+            self.container.grid_columnconfigure(1, weight=1)
+        else:
+            self.container.grid_columnconfigure(0, weight=1)
+            self.container.grid_columnconfigure(1, weight=0)
 
         self.entry.pack(side="left", fill="both", expand=True, padx=12, pady=8)
 
@@ -101,17 +113,18 @@ class FieldRow:
             self.entry.configure(bg=bg)
         if is_output:
             if not self.badge.winfo_ismapped():
-                self.badge.pack(side="right", padx=(0, 8), pady=0)
+                self.badge.place(relx=1.0, rely=0.5, anchor="e", x=-8)
         else:
             if self.badge.winfo_ismapped():
-                self.badge.pack_forget()
+                self.badge.place_forget()
 
     def set_foreground(self, color: str) -> None:
         self.entry.configure(fg=color, insertbackground=color)
 
-    def bind_on_change(self, callback: Callable[[], None]) -> None:
-        def handler(_event=None) -> None:
-            callback()
+    def bind_on_change(self, callback: Callable[[bool], None]) -> None:
+        def handler(event) -> None:
+            is_user_input = event.type == tk.EventType.KeyRelease
+            callback(is_user_input)
 
         self.entry.bind("<KeyRelease>", handler)
         self.entry.bind("<FocusOut>", handler)

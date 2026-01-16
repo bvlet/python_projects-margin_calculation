@@ -1,4 +1,5 @@
 import math
+from collections import Counter
 import tkinter as tk
 
 from .calculations import calculate_all, reset_values
@@ -36,8 +37,6 @@ class MarginCalculatorApp:
     def __init__(self, root: tk.Tk) -> None:
         self.root = root
         self.root.title("Margin Calculator")
-        self.root.geometry("980x900")
-        self.root.minsize(940, 860)
         self.root.configure(bg=APP_THEME.background)
 
         self.values, self.sources = reset_values()
@@ -97,10 +96,12 @@ class MarginCalculatorApp:
 
         self.fields = {}
         row = 1
+        input_width = 220
         row = self._render_section(
             row,
             title="Inputs",
             definitions=FIELD_DEFINITIONS,
+            input_width=input_width,
         )
 
         row = self._render_section(
@@ -108,6 +109,7 @@ class MarginCalculatorApp:
             title="Outputs",
             definitions=OUTPUT_DEFINITIONS,
             output_only=True,
+            input_width=input_width,
         )
 
         self.status_field = FieldRow(
@@ -119,8 +121,9 @@ class MarginCalculatorApp:
             output_only=True,
             background=APP_THEME.surface,
             label_color=APP_THEME.muted,
-            label_width=self.label_width,
-            input_width=420,
+            label_width=len("Status") + 2,
+            input_width=input_width,
+            expand_input=True,
         )
         self.status_field.grid(row=row, column=0, columnspan=2, sticky="ew", pady=(SPACING_MD, 0))
         self.status_field.set_mode("output")
@@ -178,6 +181,7 @@ class MarginCalculatorApp:
         self.footer.pack(side="right", anchor="e", padx=(SPACING_MD, 0))
 
         self.root.bind("<Return>", lambda _event: self.on_calculate())
+        self._lock_minimum_size()
 
     def _render_logo(self) -> None:
         logo = None
@@ -198,6 +202,8 @@ class MarginCalculatorApp:
             factor = math.ceil(scale)
             logo = logo.subsample(factor, factor)
 
+        self._apply_logo_transparency(logo)
+
         logo_wrap = tk.Frame(self.header, bg=APP_THEME.background)
         logo_wrap.pack(side="right", anchor="e")
         badge = tk.Frame(
@@ -210,7 +216,39 @@ class MarginCalculatorApp:
         logo_label.image = logo
         logo_label.pack(padx=SPACING_SM, pady=SPACING_XS)
 
-    def _render_section(self, row: int, title: str, definitions, output_only: bool = False) -> int:
+    def _apply_logo_transparency(self, logo: tk.PhotoImage) -> None:
+        width = logo.width()
+        height = logo.height()
+        if width == 0 or height == 0:
+            return
+
+        border_colors = []
+        for x in range(width):
+            border_colors.append(logo.get(x, 0))
+            border_colors.append(logo.get(x, height - 1))
+        for y in range(height):
+            border_colors.append(logo.get(0, y))
+            border_colors.append(logo.get(width - 1, y))
+
+        if not border_colors:
+            return
+
+        common = Counter(border_colors).most_common(2)
+        transparent_colors = {color for color, _count in common}
+
+        for x in range(width):
+            for y in range(height):
+                if logo.get(x, y) in transparent_colors:
+                    logo.transparency_set(x, y, True)
+
+    def _render_section(
+        self,
+        row: int,
+        title: str,
+        definitions,
+        output_only: bool = False,
+        input_width: int = 170,
+    ) -> int:
         section_label = tk.Label(
             self.form_frame,
             text=title,
@@ -231,12 +269,13 @@ class MarginCalculatorApp:
                 output_only=output_only,
                 background=APP_THEME.surface,
                 label_width=self.label_width,
+                input_width=input_width,
             )
             field.grid(row=row, column=0, columnspan=2, sticky="ew", pady=SPACING_XS)
             if output_only:
                 field.set_mode("output")
             else:
-                field.bind_on_change(lambda n=name: self._mark_user(n))
+                field.bind_on_change(lambda is_user_input, n=name: self._mark_user(n, is_user_input))
             self.fields[name] = field
             row += 1
 
@@ -245,15 +284,22 @@ class MarginCalculatorApp:
         row += 1
         return row
 
-    def _mark_user(self, name: str) -> None:
+    def _lock_minimum_size(self) -> None:
+        self.root.update_idletasks()
+        min_width = self.root.winfo_reqwidth()
+        min_height = self.root.winfo_reqheight()
+        self.root.minsize(min_width, min_height)
+        self.root.geometry(f"{min_width}x{min_height}")
+
+    def _mark_user(self, name: str, is_user_input: bool) -> None:
+        if not is_user_input:
+            return
         value = self.variables[name].get().strip()
         self.sources[name] = "user" if value else ""
         if name == "net1":
             self._sync_net2_from_net1(value)
 
     def _sync_net2_from_net1(self, net1_value: str) -> None:
-        if self.sources.get("net2") == "user":
-            return
         if net1_value:
             self.variables["net2"].set(net1_value)
             self.sources["net2"] = "calc"
