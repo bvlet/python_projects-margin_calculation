@@ -73,6 +73,15 @@ def calculate_all(values: Dict[str, str], sources: Dict[str, str]) -> Calculatio
         if margin is not None and (margin < 0 or margin > 1):
             raise ValueError("Target margin must be between 0% and 100%.")
 
+        if (
+            margin is not None
+            and updated_sources.get("net2") == "user"
+            and updated_sources.get("net1") == "user"
+            and net1 is not None
+            and net2 == net1
+        ):
+            updated_sources["net2"] = "calc"
+
         if margin is not None and sources.get("net2") != "user":
             net2 = None
 
