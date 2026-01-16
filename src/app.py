@@ -121,7 +121,7 @@ class MarginCalculatorApp:
             output_only=True,
             background=APP_THEME.surface,
             label_color=APP_THEME.muted,
-            label_width=self.label_width,
+            label_width=len("Status") + 2,
             input_width=input_width,
             expand_input=True,
         )
