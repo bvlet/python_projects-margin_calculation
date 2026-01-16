@@ -19,12 +19,14 @@ class FieldRow:
         label_color: str = APP_THEME.text,
         label_width: int = 26,
         input_width: int = 170,
+        expand_input: bool = False,
     ) -> None:
         self.name = name
         self.variable = variable
         self.output_only = output_only
         self.badge_text = badge_text
         self.background = background
+        self.expand_input = expand_input
 
         self.container = tk.Frame(parent, bg=background)
         self.label = tk.Label(
@@ -66,8 +68,15 @@ class FieldRow:
         )
 
         self.label.grid(row=0, column=0, sticky="w")
-        self.input_frame.grid(row=0, column=1, sticky="e", padx=(16, 0))
+        self.input_frame.grid(
+            row=0,
+            column=1,
+            sticky="ew" if self.expand_input else "e",
+            padx=(16, 0),
+        )
         self.container.grid_columnconfigure(0, weight=1)
+        if self.expand_input:
+            self.container.grid_columnconfigure(1, weight=1)
 
         self.entry.pack(side="left", fill="both", expand=True, padx=12, pady=8)
 

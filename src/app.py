@@ -37,8 +37,6 @@ class MarginCalculatorApp:
     def __init__(self, root: tk.Tk) -> None:
         self.root = root
         self.root.title("Margin Calculator")
-        self.root.geometry("980x900")
-        self.root.minsize(940, 860)
         self.root.configure(bg=APP_THEME.background)
 
         self.values, self.sources = reset_values()
@@ -98,10 +96,12 @@ class MarginCalculatorApp:
 
         self.fields = {}
         row = 1
+        input_width = 220
         row = self._render_section(
             row,
             title="Inputs",
             definitions=FIELD_DEFINITIONS,
+            input_width=input_width,
         )
 
         row = self._render_section(
@@ -109,6 +109,7 @@ class MarginCalculatorApp:
             title="Outputs",
             definitions=OUTPUT_DEFINITIONS,
             output_only=True,
+            input_width=input_width,
         )
 
         self.status_field = FieldRow(
@@ -121,7 +122,8 @@ class MarginCalculatorApp:
             background=APP_THEME.surface,
             label_color=APP_THEME.muted,
             label_width=self.label_width,
-            input_width=420,
+            input_width=input_width,
+            expand_input=True,
         )
         self.status_field.grid(row=row, column=0, columnspan=2, sticky="ew", pady=(SPACING_MD, 0))
         self.status_field.set_mode("output")
@@ -179,6 +181,7 @@ class MarginCalculatorApp:
         self.footer.pack(side="right", anchor="e", padx=(SPACING_MD, 0))
 
         self.root.bind("<Return>", lambda _event: self.on_calculate())
+        self._lock_minimum_size()
 
     def _render_logo(self) -> None:
         logo = None
@@ -238,7 +241,14 @@ class MarginCalculatorApp:
                 if logo.get(x, y) in transparent_colors:
                     logo.transparency_set(x, y, True)
 
-    def _render_section(self, row: int, title: str, definitions, output_only: bool = False) -> int:
+    def _render_section(
+        self,
+        row: int,
+        title: str,
+        definitions,
+        output_only: bool = False,
+        input_width: int = 170,
+    ) -> int:
         section_label = tk.Label(
             self.form_frame,
             text=title,
@@ -259,6 +269,7 @@ class MarginCalculatorApp:
                 output_only=output_only,
                 background=APP_THEME.surface,
                 label_width=self.label_width,
+                input_width=input_width,
             )
             field.grid(row=row, column=0, columnspan=2, sticky="ew", pady=SPACING_XS)
             if output_only:
@@ -272,6 +283,13 @@ class MarginCalculatorApp:
         divider.grid(row=row, column=0, columnspan=2, sticky="ew", pady=(SPACING_MD, SPACING_MD))
         row += 1
         return row
+
+    def _lock_minimum_size(self) -> None:
+        self.root.update_idletasks()
+        min_width = self.root.winfo_reqwidth()
+        min_height = self.root.winfo_reqheight()
+        self.root.minsize(min_width, min_height)
+        self.root.geometry(f"{min_width}x{min_height}")
 
     def _mark_user(self, name: str) -> None:
         value = self.variables[name].get().strip()
