@@ -70,7 +70,10 @@ def calculate_all(values: Dict[str, str], sources: Dict[str, str]) -> Calculatio
 
         denom = net1 + added_value
         if margin is not None:
-            net2 = cost * (1.0 + margin)
+            if margin < 1.0:
+                net2 = cost / (1.0 - margin)
+            else:
+                net2 = cost * (1.0 + margin)
             if denom == 0:
                 raise ValueError("Net1 + Added Value cannot be 0 when solving discount.")
             discount = 1.0 - (net2 / denom)
@@ -120,8 +123,8 @@ def calculate_all(values: Dict[str, str], sources: Dict[str, str]) -> Calculatio
         else:
             _set_calc_value(updated_values, updated_sources, "m_no", "—")
 
-        if net2 is not None and cost != 0:
-            margin_with_discount = ((net2 - cost) / cost) * 100.0
+        if net2 is not None and net2 != 0:
+            margin_with_discount = ((net2 - cost) / net2) * 100.0
             _set_calc_value(updated_values, updated_sources, "m_with", fmt_pct(margin_with_discount))
         else:
             _set_calc_value(updated_values, updated_sources, "m_with", "—")
