@@ -120,8 +120,8 @@ def calculate_all(values: Dict[str, str], sources: Dict[str, str]) -> Calculatio
         else:
             _set_calc_value(updated_values, updated_sources, "m_no", "—")
 
-        if net2 is not None and net2 != 0:
-            margin_with_discount = ((net2 - cost) / net2) * 100.0
+        if net2 is not None and cost != 0:
+            margin_with_discount = ((net2 - cost) / cost) * 100.0
             _set_calc_value(updated_values, updated_sources, "m_with", fmt_pct(margin_with_discount))
         else:
             _set_calc_value(updated_values, updated_sources, "m_with", "—")
