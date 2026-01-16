@@ -113,10 +113,10 @@ class FieldRow:
             self.entry.configure(bg=bg)
         if is_output:
             if not self.badge.winfo_ismapped():
-                self.badge.pack(side="right", padx=(0, 8), pady=0)
+                self.badge.place(relx=1.0, rely=0.5, anchor="e", x=-8)
         else:
             if self.badge.winfo_ismapped():
-                self.badge.pack_forget()
+                self.badge.place_forget()
 
     def set_foreground(self, color: str) -> None:
         self.entry.configure(fg=color, insertbackground=color)
