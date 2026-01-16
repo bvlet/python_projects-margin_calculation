@@ -61,8 +61,8 @@ def calculate_all(values: Dict[str, str], sources: Dict[str, str]) -> Calculatio
         if cost is None or net1 is None:
             raise ValueError("Cost Price and Net1 are required.")
 
-        if target_margin_pct is not None and (target_margin_pct < 0 or target_margin_pct > 100):
-            raise ValueError("Target margin must be between 0% and 100%.")
+        if target_margin_pct is not None and target_margin_pct < 0:
+            raise ValueError("Target margin cannot be negative.")
 
         added_value = 0.0 if added_value is None else added_value
         discount = 0.0 if discount_pct is None else (discount_pct / 100.0)
